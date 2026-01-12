@@ -10,35 +10,46 @@ struct PokemonSearcherView: View {
     
     var body: some View {
         NavigationStack {
-            VStack{
-                if let pokemon = viewModel.pokemon {
-                    // Wrap result in NavigationLink
-                    NavigationLink(value: pokemon) {
-                        Text(pokemon.name)
-                            .font(.headline)
-                        Text("ID: \(pokemon.id)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
+            VStack {
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .padding()
                 }
-                else if let error = viewModel.errorMessage { Text(error) }
-                else { Text("Search for a Pokemon by name!") }
-                Spacer()
+                
+                if !viewModel.last10PokemonSearched.isEmpty {
+                    List {
+                        Section(header: Text("Recent Searches")) {
+                            ForEach(viewModel.last10PokemonSearched.reversed()) { currentPokemon in
+                                NavigationLink(value: currentPokemon) {
+                                    Text(currentPokemon.name)
+                                        .font(.headline)
+                                    Text("ID: \(currentPokemon.id)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .onDelete(perform: viewModel.deletePokemon)
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
+                    .background(.white)
+                }
+                else { Text("Welcome to the Pokédex!") }
             }
-            .navigationTitle(Text("Search For Pokemon"))
-            .navigationDestination(for: Pokemon.self) { PokemonDetails(pokemon: $0) }
-            .padding()
+            .navigationTitle(Text("Search For Pokemon"))            .navigationDestination(for: Pokemon.self) { PokemonDetails(pokemon: $0) }
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
         .task(id: searchText) {
-            
-            do {
-                try await Task.sleep(for: .milliseconds(1000))
-                
-                await viewModel.getPokemon(for: searchText)
-            } catch {
-                print(error.localizedDescription)
-            }
+            await searchForPokemon()
+        }
+    }
+    
+    func searchForPokemon() async {
+        do {
+            try await Task.sleep(for: .milliseconds(1000))
+            await viewModel.getPokemon(for: searchText)
+        } catch {
+            print(error.localizedDescription)
         }
     }
 }

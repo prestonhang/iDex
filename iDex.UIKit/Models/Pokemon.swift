@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Pokemon: Codable, Hashable {
+struct Pokemon: Codable, Hashable, Identifiable {
     let name: String
     let id: Int
     let types: [PokemonTypeEntry]

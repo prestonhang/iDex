@@ -10,12 +10,14 @@ import Combine
 import SwiftUI
 
 final class PokemonSearcherViewModel: ObservableObject {
-    
-    @Published var pokemon: Pokemon?
+
     @Published var errorMessage: String? = nil
+    @Published var last10PokemonSearched: [Pokemon] = []
+    
     private let pokemonAPIService = PokemonAPIService()
     var lastSearchedPokemon: String {
-        if let pokemon {
+        if !last10PokemonSearched.isEmpty {
+            guard let pokemon = last10PokemonSearched.last else { return "" }
             return pokemon.name
         } else {
             return ""
@@ -28,15 +30,23 @@ final class PokemonSearcherViewModel: ObservableObject {
     
     func getPokemon(for pokemonToGet: String) async {
         guard !pokemonToGet.isEmpty else {
-            errorMessage = "Search for a Pokemon by name!"
             return
         }
         
         do {
-            pokemon = try await pokemonAPIService.sendGETRequest(for: pokemonToGet)
+            let retrievedPokemon = try await pokemonAPIService.sendGETRequest(for: pokemonToGet)
+            
+            if last10PokemonSearched.count >= 10 {
+                last10PokemonSearched.removeFirst()
+            }
+            last10PokemonSearched.append(retrievedPokemon)
             errorMessage = nil
         } catch {
             errorMessage = "Failed to fetch data for \(pokemonToGet). \(error.localizedDescription)"
         }
+    }
+    
+    func deletePokemon(at offsets: IndexSet) {
+        last10PokemonSearched.remove(atOffsets: offsets)
     }
 }

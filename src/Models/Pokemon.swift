@@ -20,18 +20,24 @@ struct Pokemon: Codable, Hashable, Identifiable {
         return (Double(weight) * 0.1) * 2.20462
     }
     let sprites: PokemonSprits
+    let stats: [PokemonStats]
 }
 
 struct PokemonTypeEntry: Codable, Hashable {
     let slot: Int
-    let type: PokemonType
-}
-
-struct PokemonType: Codable, Hashable {
-    let name: String
-    let url: String
+    let type: NamedAPIResource
 }
 
 struct PokemonSprits: Codable, Hashable {
     let frontDefault: String
+}
+
+struct PokemonStats: Codable, Hashable {
+    let baseStat: Int
+    let stat: NamedAPIResource
+}
+
+struct NamedAPIResource: Codable, Hashable {
+    let name: String
+    let url: String
 }

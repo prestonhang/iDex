@@ -39,6 +39,12 @@ struct PokemonSearcherView: View {
             .navigationTitle(Text("Search For Pokemon"))            .navigationDestination(for: Pokemon.self) { PokemonDetails(pokemon: $0) }
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
+        .task {
+            if viewModel.last10PokemonSearched.isEmpty {
+                print("Loading from UserDefaults...")
+                await viewModel.loadAndFetchPokemonFromSearchHistory()
+            }
+        }
         .task(id: searchText) {
             await searchForPokemon()
         }

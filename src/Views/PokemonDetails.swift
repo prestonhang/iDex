@@ -37,6 +37,8 @@ struct PokemonDetails: View {
             }
             getSprite()
             
+            getStats()
+            
             // Push All Content to the top
             Spacer()
         }
@@ -61,6 +63,13 @@ struct PokemonDetails: View {
                     Text("Unknown Issue in Image Loading")
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    func getStats() -> some View {
+        ForEach(pokemon.stats, id: \.stat.name){ stat in
+            Text(stat.stat.name.capitalized + ": \(stat.baseStat)")
         }
     }
     

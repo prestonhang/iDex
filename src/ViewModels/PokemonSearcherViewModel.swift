@@ -26,7 +26,8 @@ final class PokemonSearcherViewModel: ObservableObject {
         }
         
         do {
-            let retrievedPokemon = try await pokemonAPIService.sendGETRequest(for: pokemonToGet)
+            let pokemonUrl = URLFactory.makePokemonURL(for: pokemonToGet)
+            let retrievedPokemon = try await pokemonAPIService.sendGETRequestForPokeAPI(for: pokemonUrl)
             
             if last10PokemonSearched.count >= 10 {
                 last10PokemonSearched.removeFirst()
